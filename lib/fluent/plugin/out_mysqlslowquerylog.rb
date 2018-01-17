@@ -41,6 +41,8 @@ class Fluent::MySQLSlowQueryLogOutput < Fluent::Output
 
   REGEX1 = /^#? User\@Host:\s+(\S+)\s+\@\s+(\S+).*/
   REGEX2 = /^# Query_time: ([0-9.]+)\s+Lock_time: ([0-9.]+)\s+Rows_sent: ([0-9.]+)\s+Rows_examined: ([0-9.]+).*/
+  REGEX3 = /^use\s+(\S+);/
+  REGEX4 = /^SET\s+timestamp=(\d+);/
   def parse_message(tag, time)
     record = {}
     date   = nil
@@ -66,6 +68,20 @@ class Fluent::MySQLSlowQueryLogOutput < Fluent::Output
     record['lock_time']     = $2.to_f
     record['rows_sent']     = $3.to_i
     record['rows_examined'] = $4.to_i
+    message = @slowlogs[:"#{tag}"].shift
+
+    if message.start_with?('use ')
+      message =~ REGEX3
+      record['database'] = $1
+      message = @slowlogs[:"#{tag}"].shift
+    else
+      record['database'] = 'no_database_logged'
+    end
+
+    if message.start_with?('SET timestamp=')
+      message =~ REGEX4
+      record['set_timestamp'] = $1
+    end
 
     record['sql'] = @slowlogs[:"#{tag}"].map {|m| m.strip}.join(' ')
 

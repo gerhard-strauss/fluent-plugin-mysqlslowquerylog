@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |gem|
-  gem.name          = "fluent-plugin-mysqlslowquerylog"
-  gem.version       = "0.0.2"
-  gem.authors       = ["Satoshi SUZUKI"]
-  gem.email         = ["studio3104.com@gmail.com"]
+  gem.name          = "fluent-plugin-mysqlslowquerylog-ippen-digital"
+  gem.version       = "0.0.4"
+  gem.authors       = ["Satoshi SUZUKI", "Gerhard Strauss"]
+  gem.email         = ["studio3104.com@gmail.com", "gerhard.strauss@ippen-digital.de"]
   gem.description   = %q{Fluentd plugin to concat MySQL slowquerylog.}
   gem.summary       = %q{Fluentd plugin to concat MySQL slowquerylog.}
-  gem.homepage      = "https://github.com/studio3104/fluent-plugin-mysqlslowquerylog"
+  gem.homepage      = "https://github.com/gerhard-strauss/fluent-plugin-mysqlslowquerylog"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
