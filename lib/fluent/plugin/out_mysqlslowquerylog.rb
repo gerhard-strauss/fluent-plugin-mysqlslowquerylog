@@ -1,6 +1,7 @@
 class Fluent::MySQLSlowQueryLogOutput < Fluent::Output
   Fluent::Plugin.register_output('mysqlslowquerylog', self)
   include Fluent::HandleTagNameMixin
+  require 'digest'
 
   def configure(conf)
     super
@@ -61,6 +62,7 @@ class Fluent::MySQLSlowQueryLogOutput < Fluent::Output
     message =~ REGEX1
     record['user'] = $1
     record['host'] = $2
+    @hash_str = record['user'].to_s + record['host'].to_s
     message = @slowlogs[:"#{tag}"].shift
 
     message =~ REGEX2
@@ -81,9 +83,14 @@ class Fluent::MySQLSlowQueryLogOutput < Fluent::Output
     if message.start_with?('SET timestamp=')
       message =~ REGEX4
       record['set_timestamp'] = $1
+      @hash_str << record['set_timestamp'].to_s
     end
 
-    record['sql'] = @slowlogs[:"#{tag}"].map {|m| m.strip}.join(' ')
+    @sql_line = @slowlogs[:"#{tag}"].map {|m| m.strip}.join(' ')
+    record['sql'] = @sql_line.to_s
+    @hash_str << @sql_line.to_s
+
+    record['hash_id'] = Digest::SHA1.hexdigest(@hash_str)
 
     time = date.to_i if date
     flush_emit(tag, time, record)
